@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="kaa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Qatnasıw Sisteması</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f9; padding: 20px; }
+        h2 { color: #333; }
+        #reader { width: 100%; max-width: 500px; margin: 0 auto; border: 2px solid #ccc; border-radius: 10px; background: white;}
+        #result { margin-top: 20px; font-size: 22px; color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>QR Kod arqalı studentlerdi dizimge alıw</h2>
+    
+    <div id="reader"></div>
+    
+    <div id="result">Kameranı QR kodqa qaratiń...</div>
+
+    <script>
+        // QR kod oqilg'anda isleytug'in funksiya
+        function onScanSuccess(decodedText, decodedResult) {
+            document.getElementById('result').innerText = "Oqıldı: " + decodedText + ". Serverge jiberilmekte...";
+
+            // Maǵlıwmattı Python (Backend) ga jiberiw
+            fetch('/saqlaw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ student_id: decodedText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = data.message;
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = "Qátelik júz berdi!";
+                document.getElementById('result').style.color = "red";
+            });
+        }
+
+        // Skanerdi iske túsiriw
+        var html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+
+</body>
+</html>
